@@ -7,7 +7,8 @@ Intermediate Java Programming Group A
 ## Building
 mvn clean install
 ## Running
-java -jar $MODULE/target/$MODULE-1.0.0.jar
+java -jar Server/target/Server-1.0.0.jar
+java -jar Client/target/Client-1.0.0.jar
 ## Common Module
 Shared classes between client and server modules.
 ## Server Module
