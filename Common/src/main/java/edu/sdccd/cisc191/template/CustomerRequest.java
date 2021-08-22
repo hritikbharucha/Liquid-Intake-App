@@ -1,9 +1,7 @@
-package edu.sdccd.cisc191.a;
+package edu.sdccd.cisc191.template;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.File;
 
 public class CustomerRequest {
     private Integer id;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>edu.sdccd.cisc191.a</groupId>
+    <groupId>edu.sdccd.cisc191.template</groupId>
     <artifactId>FinalProject</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0</version>
@@ -136,7 +136,7 @@
         <repository>
             <id>cisc191</id>
             <name>CISC191 Maven Repo</name>
-            <url>https://maven.pkg.github.com/MiramarCISC/CISC191-SPRING2020-A</url>
+            <url>https://maven.pkg.github.com/MiramarCISC/CISC191-TEMPLATE</url>
         </repository>
     </distributionManagement>
 </project>

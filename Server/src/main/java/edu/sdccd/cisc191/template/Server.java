@@ -1,4 +1,4 @@
-package edu.sdccd.cisc191.a;
+package edu.sdccd.cisc191.template;
 
 import java.net.*;
 import java.io.*;

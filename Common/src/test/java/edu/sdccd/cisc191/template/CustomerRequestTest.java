@@ -1,4 +1,4 @@
-package edu.sdccd.cisc191.a;
+package edu.sdccd.cisc191.template;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
