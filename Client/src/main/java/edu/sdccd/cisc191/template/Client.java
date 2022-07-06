@@ -37,11 +37,27 @@ public class Client {
         out.close();
         clientSocket.close();
     }
+
+    public void setPreferredTotal(Beverage[] drinks) {
+        double total = 0;
+        String preferredUnit = "";
+//        preferredUnit = box.text;
+        for (Beverage drink : drinks) {
+            total += drink.convertToPreferred(preferredUnit);
+        }
+//        totalTextBox.text = String.format("%,.2f", total)
+    }
+
+
+
+
+
     public static void main(String[] args) {
         Client client = new Client();
         try {
             client.startConnection("127.0.0.1", 4444);
             System.out.println(client.sendRequest().toString());
+
             client.stopConnection();
         } catch(Exception e) {
             e.printStackTrace();
