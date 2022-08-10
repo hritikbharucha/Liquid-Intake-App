@@ -1,15 +1,27 @@
 package edu.sdccd.cisc191.template;
+import java.time.LocalDate;
 
 public class Beverage implements Liquid{
     private double amount;
     private String unit;
     private String type;
 
+    private LocalDate date;
+
     //Constructor for Bevarage class with amount of beverage and in which units
-    public Beverage(double amount, String unit, String type) {
+    public Beverage(double amount, String unit, String type, LocalDate date) {
         this.amount = amount;
         this.unit = unit;
         this.type = type;
+        this.date = date;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
     //get the amount of the beverage
@@ -25,6 +37,11 @@ public class Beverage implements Liquid{
     public String getType() {
         return type;
     }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     //get the unit of the beverage
     public String getUnit() {
         return unit;
@@ -59,7 +76,7 @@ public class Beverage implements Liquid{
 
     @Override
     public String toString() {
-        return (amount + " " + unit + " of " + type);
+        return (amount + " " + unit + " of " + type + " recorded on " + date);
     }
 
     @Override

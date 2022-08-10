@@ -26,11 +26,11 @@ public class Server {
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
         String inputLine;
-        while ((inputLine = in.readLine()) != null) {
-            CustomerRequest request = CustomerRequest.fromJSON(inputLine);
-            CustomerResponse response = new CustomerResponse(request.getId(), "Jane", "Doe");
-            out.println(CustomerResponse.toJSON(response));
-        }
+//        while ((inputLine = in.readLine()) != null) {
+//            CustomerRequest request = CustomerRequest.fromJSON(inputLine);
+//            CustomerResponse response = new CustomerResponse(request.getId(), "Jane", "Doe");
+//            out.println(CustomerResponse.toJSON(response));
+//        }
     }
 
     public void stop() throws IOException {
