@@ -5,6 +5,7 @@ import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.geometry.*;
+import java.time.LocalDate;
 
 public class AddNewEntry {
 
@@ -18,11 +19,40 @@ public class AddNewEntry {
         window.setTitle("Create New Entry");
         window.setMinWidth(250);
 
-
-
         ChoiceBox<String> beverageDropdown = new ChoiceBox<>();
-        beverageDropdown.getItems().addAll("Water", "Soda");
+        beverageDropdown.getItems().addAll("Water", "Soda", "Custom");
         beverageDropdown.setValue("Water");
+
+        Label nameLabel = new Label("Name:");
+        TextField nameTextField = new TextField();
+        nameTextField.setText("Drink");
+        HBox nameLayout = new HBox();
+        nameLayout.getChildren().addAll(nameLabel, nameTextField);
+        nameLayout.setSpacing(10);
+        nameLayout.setAlignment(Pos.CENTER);
+        nameLayout.setVisible(false);
+
+        Label calorieLabel = new Label("Calories:");
+        TextField calorieTextField = new TextField();
+        calorieTextField.setText("100");
+        HBox calorieLayout = new HBox();
+        calorieLayout.getChildren().addAll(calorieLabel, calorieTextField);
+        calorieLayout.setSpacing(10);
+        calorieLayout.setAlignment(Pos.CENTER);
+        calorieLayout.setVisible(false);
+
+        beverageDropdown.setOnAction(e -> {
+            if (beverageDropdown.getValue() == "Custom") {
+                nameLayout.setVisible(true);
+                calorieLayout.setVisible(true);
+            } else if (beverageDropdown.getValue() == "Soda") {
+                nameLayout.setVisible(false);
+                calorieLayout.setVisible(true);
+            } else {
+                nameLayout.setVisible(false);
+                calorieLayout.setVisible(false);
+            }
+        });
 
         ChoiceBox<String> unitsDropdown = new ChoiceBox<>();
         unitsDropdown.getItems().addAll("OZ", "ML");
@@ -36,17 +66,30 @@ public class AddNewEntry {
         amountLayout.setSpacing(10);
         amountLayout.setAlignment(Pos.CENTER);
 
+        DatePicker datePicker = new DatePicker();
+        datePicker.setValue(LocalDate.now());
+
         Button addButton = new Button("Add");
         addButton.setOnAction(e -> {
             System.out.println("ADDING ENTRY");
             if (beverageDropdown.getValue() == "Water") {
                 int amount = Integer.valueOf(amountTextField.getText());
                 String units = unitsDropdown.getValue();
-                beverage = new Water(amount, units);
+                LocalDate date = datePicker.getValue();
+                beverage = new Water(amount, units, date);
+            } else if (beverageDropdown.getValue() == "Soda") {
+                int amount = Integer.valueOf(amountTextField.getText());
+                String units = unitsDropdown.getValue();
+                int calories = Integer.valueOf(calorieTextField.getText());
+                LocalDate date = datePicker.getValue();
+                beverage = new Soda(amount, units, calories, date);
             } else {
                 int amount = Integer.valueOf(amountTextField.getText());
                 String units = unitsDropdown.getValue();
-                beverage = new Soda(amount, units, 100);
+                int calories = Integer.valueOf(calorieTextField.getText());
+                String name = nameTextField.getText();
+                LocalDate date = datePicker.getValue();
+                beverage = new Custom(amount, units, name, calories, date);
             }
             window.close();
         });
@@ -65,7 +108,7 @@ public class AddNewEntry {
 
         VBox layout = new VBox(10);
         layout.setPadding(new Insets(10, 10, 20, 10));
-        layout.getChildren().addAll(beverageDropdown, amountLayout, unitsDropdown, buttonsLayout);
+        layout.getChildren().addAll(beverageDropdown, amountLayout, unitsDropdown, datePicker, calorieLayout, nameLayout, buttonsLayout);
         layout.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(layout);
