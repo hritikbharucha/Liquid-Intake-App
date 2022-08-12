@@ -1,7 +1,7 @@
 package edu.sdccd.cisc191.template;
 import java.time.LocalDate;
 
-public class Beverage implements Liquid{
+public class Beverage implements Liquid,Comparable {
     private double amount;
     private String unit;
     private String type;
@@ -87,5 +87,11 @@ public class Beverage implements Liquid{
     @Override
     public double mlToOz() {
         return getAmount() * 0.033814;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        LocalDate compareDate = ((Beverage)o).getDate();
+        return this.date.compareTo(compareDate);
     }
 }
