@@ -1,6 +1,6 @@
 //package edu.sdccd.cisc191;
 //import com.google.gson.Gson;
-//public class VehicleRequest {
+//public class HydrationRequest {
 //    private int year;
 //    private String make;
 //    private String model;
