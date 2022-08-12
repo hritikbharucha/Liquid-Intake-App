@@ -1,14 +1,15 @@
 package edu.sdccd.cisc191.template;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.geometry.*;
+
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ViewDailyIntake extends Application {
 
@@ -21,7 +22,7 @@ public class ViewDailyIntake extends Application {
     int totalCalories;
     int totalRuns;
     ListView<String> listView;
-    Beverage[] beverages;
+    ArrayList<Beverage> beverages;
     int beverageNum;
 
     public static void main(String[] args)
@@ -37,7 +38,7 @@ public class ViewDailyIntake extends Application {
         window.setTitle("Daily Intake Calculator");
         button = new Button();
         button.setText("Add");
-        beverages = new Beverage[10];
+        beverages = new ArrayList<Beverage>();
         beverageNum = 0;
 
         listView = new ListView<>();
@@ -62,7 +63,7 @@ public class ViewDailyIntake extends Application {
         button.setOnAction(e -> {
             Beverage beverage = AddNewEntry.display();
             if (beverage != null) {
-                beverages[beverageNum] = beverage;
+                beverages.add(beverageNum,beverage);
                 String beverageString = beverage.toString();
 
                 listView.getItems().add(beverageString);
@@ -92,15 +93,29 @@ public class ViewDailyIntake extends Application {
     }
 
     //Convert all liquid amounts to one preferred unit to total all liquids consumed
-    public String setPreferredTotal(Beverage[] drinks, String unit) {
-        double total = 0;
+    public String setPreferredTotal(ArrayList<Beverage> drinks, String unit) {
+        AtomicReference<Double> total = new AtomicReference<>((double) 0);
+        ArrayList<Thread> threads = new ArrayList<Thread>();
         System.out.println(unit);
         for (Beverage drink : drinks) {
             if (drink != null) {
-                total += drink.convertToPreferred(unit);
+                threads.add(new Thread(() -> {
+                    total.updateAndGet(v -> new Double((double) (v + drink.convertToPreferred(unit))));
+                }));
+                threads.get(threads.size()-1).start();
+
             }
         }
-       return String.valueOf(total) + " " + unit;
+
+        threads.forEach(thread -> {
+            try {
+                thread.join();
+            } catch(InterruptedException e) {
+                System.out.println(e);
+            };});
+
+
+       return String.valueOf(total.get()) + " " + unit;
     }
 
 }
