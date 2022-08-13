@@ -1,14 +1,20 @@
 package edu.sdccd.cisc191.template;
+import java.time.LocalDate;
 
 public class Soda extends Beverage implements Liquid, Calories{
 
     private int calories;
 
-    public Soda(double amount, String unit, int calories) {
-        super(amount, unit);
+    //Constructor for soda which inherits from Beverage and also has calories
+    public Soda(double amount, String unit, int calories, LocalDate date) {
+        super(amount, unit, "Soda", date);
         this.calories = calories;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + " with " + calories + " calories.";
+    }
 
     @Override
     public int caloriesToRuns() {
@@ -16,13 +22,15 @@ public class Soda extends Beverage implements Liquid, Calories{
     }
 
 
-
+    //get calories
     public int getCalories() {
         return calories;
     }
 
+    //set calories
     public void setCalories(int calories) {
         this.calories = calories;
     }
 
 }
+

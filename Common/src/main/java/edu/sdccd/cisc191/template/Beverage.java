@@ -1,31 +1,102 @@
 package edu.sdccd.cisc191.template;
+import org.springframework.stereotype.Service;
 
-public class Beverage implements Liquid{
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import javax.persistence.*;
+
+@Service
+@Entity(name="Beverage")
+public class Beverage implements Liquid,Comparable, Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+
+    @Column(
+            name="id",
+            updatable = false
+    )
+    private Long id;
+
+    @Column(
+            name = "amount",
+            nullable = false,
+            updatable = true
+    )
     private double amount;
+
+    @Column(
+            name = "unit",
+            nullable = false,
+            updatable = true
+    )
     private String unit;
 
-    public Beverage(double amount, String unit) {
+    @Column(
+            name = "type",
+            nullable = false,
+            columnDefinition = "TEXT",
+            updatable = true
+    )
+    private String type;
+
+    @Column(
+            name = "date",
+            nullable = false,
+            updatable = true
+    )
+    private LocalDate date;
+
+    //Constructor for Bevarage class with amount of beverage and in which units
+    public Beverage(double amount, String unit, String type, LocalDate date) {
         this.amount = amount;
         this.unit = unit;
+        this.type = type;
+        this.date = date;
     }
 
+    public Beverage() {
 
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    //get the amount of the beverage
     public double getAmount() {
         return amount;
     }
 
+    //set the amount of the beverage
     public void setAmount(double amount) {
         this.amount = amount;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    //get the unit of the beverage
     public String getUnit() {
         return unit;
     }
 
+    //set the unit of the beverage
     public void setUnit(String unit) {
         this.unit = unit;
     }
 
+    //convert units from ml to oz or from oz to ml
     public double convertToPreferred(String pUnit) {
         switch (pUnit) {
 
@@ -48,6 +119,11 @@ public class Beverage implements Liquid{
     }
 
     @Override
+    public String toString() {
+        return (amount + " " + unit + " of " + type + " recorded on " + date);
+    }
+
+    @Override
     public double ozToMl() {
         return getAmount() * 29.5735;
     }
@@ -55,5 +131,11 @@ public class Beverage implements Liquid{
     @Override
     public double mlToOz() {
         return getAmount() * 0.033814;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        LocalDate compareDate = ((Beverage)o).getDate();
+        return this.date.compareTo(compareDate);
     }
 }
