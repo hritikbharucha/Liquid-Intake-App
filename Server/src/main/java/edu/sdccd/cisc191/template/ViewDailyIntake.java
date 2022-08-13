@@ -8,8 +8,13 @@ import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.geometry.*;
 import javafx.scene.control.Alert.AlertType;
+import static java.nio.file.StandardOpenOption.*;
+import java.nio.file.*;
+import java.io.*;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ViewDailyIntake extends Application {
@@ -62,7 +67,31 @@ public class ViewDailyIntake extends Application {
             totalNumber.setText(total);
         });
 
+        Button saveFileButton = new Button("Save File");
+
         totalLayout.getChildren().addAll(totalLabel, totalUnitsDropdown, totalNumber);
+        HBox bottomLayout = new HBox(50);
+        bottomLayout.getChildren().addAll(totalLayout, saveFileButton);
+        bottomLayout.setPadding(new Insets(20, 0, 10, 0));
+        bottomLayout.setAlignment(Pos.BOTTOM_CENTER);
+        Alert fileError = new Alert(AlertType.WARNING);
+        fileError.setContentText("Error saving entries file.");
+
+        Alert fileSuccess = new Alert(AlertType.INFORMATION);
+        fileSuccess.setContentText("Entries File saved in DailyIntakeEntries.txt.");
+
+        boolean error = true;
+        saveFileButton.setOnAction(e -> {
+            try {
+                runScannerStuff();
+                fileSuccess.show();
+            } catch (IOException err) {
+                fileError.show();
+            }
+
+        });
+
+
 
         addButton.setOnAction(e -> {
             Beverage beverage = AddNewEntry.display();
@@ -96,6 +125,8 @@ public class ViewDailyIntake extends Application {
             }
         });
 
+
+
         HBox buttonsLayout = new HBox(50);
         buttonsLayout.getChildren().addAll(searchButton, addButton);
         buttonsLayout.setPadding(new Insets(20, 0, 10, 0));
@@ -104,7 +135,7 @@ public class ViewDailyIntake extends Application {
         VBox layout = new VBox(10);
         layout.setPadding(new Insets(10,10,10,10));
         layout.setAlignment(Pos.CENTER);
-        layout.getChildren().addAll(listView, buttonsLayout, totalLayout, runs);
+        layout.getChildren().addAll(listView, buttonsLayout, bottomLayout, runs);
 
         Scene scene = new Scene(layout, 300, 300);
         window.setScene(scene);
@@ -112,6 +143,25 @@ public class ViewDailyIntake extends Application {
 
     }
 
+    public void runScannerStuff() throws IOException {
+        new PrintWriter("DailyIntakeEntries.txt").close();
+        String entries = "";
+        for(int i = 0; i < beverages.size(); i++) {
+
+            entries += beverages.get(i).toString();
+            if (i != beverages.size()-1) {
+                entries += "\n";
+            }
+        }
+
+        byte entriesBytes[] = entries.getBytes();
+        Path p = Paths.get("./DailyIntakeEntries.txt");
+
+        try (OutputStream out = new BufferedOutputStream(
+                Files.newOutputStream(p, CREATE, APPEND))) {
+            out.write(entriesBytes, 0, entriesBytes.length);
+        }
+    }
     //Convert all liquid amounts to one preferred unit to total all liquids consumed
     public String setPreferredTotal(ArrayList<Beverage> drinks, String unit) {
         AtomicReference<Double> total = new AtomicReference<>((double) 0);
