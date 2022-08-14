@@ -36,33 +36,28 @@ public class Client extends Application {
     ListView<String> listView;
     ArrayList<Beverage> beverages;
     int beverageNum;
-
-    public static void main(String[] args) {
-        Client client = new Client();
-
-        try {
-           Application.launch();
-
-//            client.stopConnection();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
     public void startConnection(String ip, int port) throws IOException {
         clientSocket = new Socket(ip, port);
+        System.out.println("CONNECTION STARTED1");
         out = new ObjectOutputStream(clientSocket.getOutputStream());
+        System.out.println("CONNECTION STARTED2");
         in = new ObjectInputStream(clientSocket.getInputStream());
-//
+        System.out.println("CONNECTION STARTED3");
 //        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
-    public void stopConnection() throws IOException {
-        in.close();
-        out.close();
-        clientSocket.close();
-    }
+
+
+
+
+//    public void stopConnection() throws IOException {
+//        in.close();
+//        System.out.println("CONNECTION STOPPED1");
+//        out.close();
+//        System.out.println("CONNECTION STOPPED2");
+//        clientSocket.close();
+//        System.out.println("CONNECTION STOPPED3");
+//    }
 
     public Node bstRequest(ArrayList<Beverage> sortedBevs, LocalDate date) throws Exception {
         out.writeObject(sortedBevs);
@@ -194,7 +189,7 @@ public class Client extends Application {
             System.out.println("Searching Entries");
             listView.getItems().clear();
 
-            searchBeverages(listView, beverages, datePicker.getValue());
+            showFilteredBeverages(listView, beverages, datePicker.getValue());
         });
 
         Button cancelButton = new Button("Done");
@@ -348,29 +343,27 @@ public class Client extends Application {
         return beverage;
     }
 
-    public void searchBeverages(ListView<String> list, ArrayList<Beverage> sortedBevs, LocalDate date) {
-        Node filteredBst = null;
+    public void showFilteredBeverages(ListView<String> list, ArrayList<Beverage> sortedBevs, LocalDate date) {
+        Beverage bev = new Beverage();
 
         try {
             startConnection("127.0.0.1", 4444);
-            filteredBst = bstRequest(sortedBevs, date);
-            stopConnection();
+            System.out.println("STARTED ENDED");
+            Node filteredBst = bstRequest(sortedBevs, date);
+            bev.searchBeverages(list, filteredBst);
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        Alert info = new Alert(Alert.AlertType.INFORMATION);
-        info.setContentText("No beverage found for selected date.");
-
-        if (filteredBst == null) {
+            Alert info = new Alert(Alert.AlertType.INFORMATION);
+            info.setContentText("No beverage found for selected date.");
             info.show();
-        } else {
-            String beverageString = filteredBst.data.toString();
-            list.getItems().add(beverageString);
         }
+
+
+
     }
 
     //Convert all liquid amounts to one preferred unit to total all liquids consumed
-    public String setPreferredTotal(ArrayList<Beverage> drinks, String unit) {
+    public static String setPreferredTotal(ArrayList<Beverage> drinks, String unit) {
         AtomicReference<Double> total = new AtomicReference<>((double) 0);
         ArrayList<Thread> threads = new ArrayList<Thread>();
         System.out.println(unit);
@@ -395,15 +388,16 @@ public class Client extends Application {
         return String.valueOf(total.get()) + " " + unit;
     }
 
-//
-//    static class Node {
-//        Beverage data;
-//        Node left, right;
-//        Node(Beverage data) {
-//            this.data = data;
-//            this.left = null;
-//            this.right = null;
-//        }
-//    }
+    public static void main(String[] args) {
+
+        try {
+//            client.startConnection("127.0.0.1", 4444);
+            Application.launch();
+
+//            client.stopConnection();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
