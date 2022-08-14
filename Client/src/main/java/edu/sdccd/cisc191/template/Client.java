@@ -1,7 +1,5 @@
 package edu.sdccd.cisc191.template;
 
-import java.net.*;
-import java.io.*;
 import javafx.application.Application;
 import javafx.scene.canvas.Canvas;
 import javafx.stage.*;
@@ -10,58 +8,25 @@ import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.geometry.*;
 import javafx.scene.control.Alert.AlertType;
+import static java.nio.file.StandardOpenOption.*;
+import java.nio.file.*;
+import java.io.*;
+import java.net.*;
+import java.io.PrintWriter;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * This program opens a connection to a computer specified
- * as the first command-line argument.  If no command-line
- * argument is given, it prompts the user for a computer
- * to connect to.  The connection is made to
- * the port specified by LISTENING_PORT.  The program reads one
- * line of text from the connection and then closes the
- * connection.  It displays the text that it read on
- * standard output.  This program is meant to be used with
- * the server program, DateServer, which sends the current
- * date and time on the computer where the server is running.
- */
-
-public class Client {
-    private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
-
-//    public void startConnection(String ip, int port) throws IOException {
-//        clientSocket = new Socket(ip, port);
-//        out = new PrintWriter(clientSocket.getOutputStream(), true);
-//        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//    }
-
-//    public CustomerResponse sendRequest() throws Exception {
-//        out.println(CustomerRequest.toJSON(new CustomerRequest(1)));
-//        return CustomerResponse.fromJSON(in.readLine());
-//    }
-
-//    public void stopConnection() throws IOException {
-//        in.close();
-//        out.close();
-//        clientSocket.close();
-//    }
-
-    public void setPreferredTotal(Beverage[] drinks) {
-        double total = 0;
-        String preferredUnit = "";
-//        preferredUnit = box.text;
-        for (Beverage drink : drinks) {
-            total += drink.convertToPreferred(preferredUnit);
-        }
-//        totalTextBox.text = String.format("%,.2f", total)
-    }
-
+public class Client extends Application {
 
     private Canvas gameCanvas;
     private Scene gameScene;
     private Group gameGroup;
+    private Socket clientSocket;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
 
     Stage window;
     Button addButton;
@@ -72,10 +37,38 @@ public class Client {
     ArrayList<Beverage> beverages;
     int beverageNum;
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
+        Client client = new Client();
 
-        Application.launch();
+        try {
+           Application.launch();
+
+//            client.stopConnection();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void startConnection(String ip, int port) throws IOException {
+        clientSocket = new Socket(ip, port);
+        out = new ObjectOutputStream(clientSocket.getOutputStream());
+        in = new ObjectInputStream(clientSocket.getInputStream());
+//
+//        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+    }
+
+    public void stopConnection() throws IOException {
+        in.close();
+        out.close();
+        clientSocket.close();
+    }
+
+    public Node bstRequest(ArrayList<Beverage> sortedBevs, LocalDate date) throws Exception {
+        out.writeObject(sortedBevs);
+        out.writeObject(date);
+        return (Node)in.readObject();
+
     }
 
     //start stage and show window of the logs
@@ -110,29 +103,31 @@ public class Client {
         Button saveFileButton = new Button("Save File");
 
         totalLayout.getChildren().addAll(totalLabel, totalUnitsDropdown, totalNumber);
-
         HBox bottomLayout = new HBox(50);
         bottomLayout.getChildren().addAll(totalLayout, saveFileButton);
         bottomLayout.setPadding(new Insets(20, 0, 10, 0));
         bottomLayout.setAlignment(Pos.BOTTOM_CENTER);
-
         Alert fileError = new Alert(AlertType.WARNING);
         fileError.setContentText("Error saving entries file.");
 
         Alert fileSuccess = new Alert(AlertType.INFORMATION);
-        fileSuccess.setContentText("Entries File saved in DailyEntries.txt.");
+        fileSuccess.setContentText("Entries File saved in DailyIntakeEntries.txt.");
 
         boolean error = true;
         saveFileButton.setOnAction(e -> {
-            if (error) {
-                fileError.show();
-            } else {
+            try {
+                runScannerStuff();
                 fileSuccess.show();
+            } catch (IOException err) {
+                fileError.show();
             }
+
         });
 
+
+
         addButton.setOnAction(e -> {
-            Beverage beverage = AddNewEntry.display();
+            Beverage beverage = Client.addNewEntry();
             if (beverage != null) {
                 beverages.add(beverageNum,beverage);
                 String beverageString = beverage.toString();
@@ -159,9 +154,11 @@ public class Client {
             if (beverages.isEmpty()) {
                 warning.show();
             } else {
-                SearchNewEntry.display(beverages);
+                searchNewEntry(beverages);
             }
         });
+
+
 
         HBox buttonsLayout = new HBox(50);
         buttonsLayout.getChildren().addAll(searchButton, addButton);
@@ -177,6 +174,199 @@ public class Client {
         window.setScene(scene);
         window.show();
 
+    }
+
+    //display new window for adding new entries for intake log
+    public void searchNewEntry(ArrayList<Beverage> beverages) {
+        Stage window = new Stage();
+        ListView<String> listView = new ListView<>();
+        Collections.sort(beverages);
+
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle("Search Entries For Date");
+        window.setMinWidth(250);
+
+        DatePicker datePicker = new DatePicker();
+        datePicker.setValue(LocalDate.now());
+
+        Button addButton = new Button("Search");
+        addButton.setOnAction(e -> {
+            System.out.println("Searching Entries");
+            listView.getItems().clear();
+
+            searchBeverages(listView, beverages, datePicker.getValue());
+        });
+
+        Button cancelButton = new Button("Done");
+        cancelButton.setOnAction(e -> {
+            System.out.println("CANCELING");
+            window.close();
+        });
+
+        HBox buttonsLayout = new HBox(50);
+        buttonsLayout.getChildren().addAll(cancelButton, addButton);
+        buttonsLayout.setPadding(new Insets(20, 0, 10, 0));
+        buttonsLayout.setAlignment(Pos.BOTTOM_CENTER);
+
+        VBox layout = new VBox(10);
+        layout.setPadding(new Insets(10, 10, 20, 10));
+        layout.getChildren().addAll(listView, datePicker, buttonsLayout);
+        layout.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(layout);
+        window.setScene(scene);
+        window.showAndWait();
+    }
+
+    public void runScannerStuff() throws IOException {
+        new PrintWriter("DailyIntakeEntries.txt").close();
+        String entries = "";
+        for(int i = 0; i < beverages.size(); i++) {
+
+            entries += beverages.get(i).toString();
+            if (i != beverages.size()-1) {
+                entries += "\n";
+            }
+        }
+
+        byte entriesBytes[] = entries.getBytes();
+        Path p = Paths.get("./DailyIntakeEntries.txt");
+
+        try (OutputStream out = new BufferedOutputStream(
+                Files.newOutputStream(p, CREATE, APPEND))) {
+            out.write(entriesBytes, 0, entriesBytes.length);
+        }
+    }
+
+
+    static Beverage beverage;
+
+    //display new window for adding new entries for intake log
+    public static Beverage addNewEntry() {
+        Stage window = new Stage();
+
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle("Create New Entry");
+        window.setMinWidth(250);
+
+        ChoiceBox<String> beverageDropdown = new ChoiceBox<>();
+        beverageDropdown.getItems().addAll("Water", "Soda", "Custom");
+        beverageDropdown.setValue("Water");
+
+        Label nameLabel = new Label("Name:");
+        TextField nameTextField = new TextField();
+        nameTextField.setText("Drink");
+        HBox nameLayout = new HBox();
+        nameLayout.getChildren().addAll(nameLabel, nameTextField);
+        nameLayout.setSpacing(10);
+        nameLayout.setAlignment(Pos.CENTER);
+        nameLayout.setVisible(false);
+
+        Label calorieLabel = new Label("Calories:");
+        TextField calorieTextField = new TextField();
+        calorieTextField.setText("100");
+        HBox calorieLayout = new HBox();
+        calorieLayout.getChildren().addAll(calorieLabel, calorieTextField);
+        calorieLayout.setSpacing(10);
+        calorieLayout.setAlignment(Pos.CENTER);
+        calorieLayout.setVisible(false);
+
+        beverageDropdown.setOnAction(e -> {
+            if (beverageDropdown.getValue() == "Custom") {
+                nameLayout.setVisible(true);
+                calorieLayout.setVisible(true);
+            } else if (beverageDropdown.getValue() == "Soda") {
+                nameLayout.setVisible(false);
+                calorieLayout.setVisible(true);
+            } else {
+                nameLayout.setVisible(false);
+                calorieLayout.setVisible(false);
+            }
+        });
+
+        ChoiceBox<String> unitsDropdown = new ChoiceBox<>();
+        unitsDropdown.getItems().addAll("OZ", "ML");
+        unitsDropdown.setValue("OZ");
+
+        Label amountLabel = new Label("Amount:");
+        TextField amountTextField = new TextField ();
+        amountTextField.setText("10");
+        HBox amountLayout = new HBox();
+        amountLayout.getChildren().addAll(amountLabel, amountTextField);
+        amountLayout.setSpacing(10);
+        amountLayout.setAlignment(Pos.CENTER);
+
+        DatePicker datePicker = new DatePicker();
+        datePicker.setValue(LocalDate.now());
+
+        Button addButton = new Button("Add");
+        addButton.setOnAction(e -> {
+            System.out.println("ADDING ENTRY");
+            if (beverageDropdown.getValue() == "Water") {
+                int amount = Integer.valueOf(amountTextField.getText());
+                String units = unitsDropdown.getValue();
+                LocalDate date = datePicker.getValue();
+                beverage = new Water(amount, units, date);
+            } else if (beverageDropdown.getValue() == "Soda") {
+                int amount = Integer.valueOf(amountTextField.getText());
+                String units = unitsDropdown.getValue();
+                int calories = Integer.valueOf(calorieTextField.getText());
+                LocalDate date = datePicker.getValue();
+                beverage = new Soda(amount, units, calories, date);
+            } else {
+                int amount = Integer.valueOf(amountTextField.getText());
+                String units = unitsDropdown.getValue();
+                int calories = Integer.valueOf(calorieTextField.getText());
+                String name = nameTextField.getText();
+                LocalDate date = datePicker.getValue();
+                beverage = new Custom(amount, units, name, calories, date);
+            }
+            window.close();
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> {
+            System.out.println("CANCELING");
+            beverage = null;
+            window.close();
+        });
+
+        HBox buttonsLayout = new HBox(50);
+        buttonsLayout.getChildren().addAll(cancelButton, addButton);
+        buttonsLayout.setPadding(new Insets(20, 0, 10, 0));
+        buttonsLayout.setAlignment(Pos.BOTTOM_CENTER);
+
+        VBox layout = new VBox(10);
+        layout.setPadding(new Insets(10, 10, 20, 10));
+        layout.getChildren().addAll(beverageDropdown, amountLayout, unitsDropdown, datePicker, calorieLayout, nameLayout, buttonsLayout);
+        layout.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(layout);
+        window.setScene(scene);
+        window.showAndWait();
+
+        return beverage;
+    }
+
+    public void searchBeverages(ListView<String> list, ArrayList<Beverage> sortedBevs, LocalDate date) {
+        Node filteredBst = null;
+
+        try {
+            startConnection("127.0.0.1", 4444);
+            filteredBst = bstRequest(sortedBevs, date);
+            stopConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Alert info = new Alert(Alert.AlertType.INFORMATION);
+        info.setContentText("No beverage found for selected date.");
+
+        if (filteredBst == null) {
+            info.show();
+        } else {
+            String beverageString = filteredBst.data.toString();
+            list.getItems().add(beverageString);
+        }
     }
 
     //Convert all liquid amounts to one preferred unit to total all liquids consumed
@@ -205,17 +395,15 @@ public class Client {
         return String.valueOf(total.get()) + " " + unit;
     }
 
-
-//    public static void main(String[] args) {
-//        Client client = new Client();
-//        try {
-//            client.startConnection("127.0.0.1", 4444);
-////            System.out.println(client.sendRequest().toString());
 //
-//            client.stopConnection();
-//        } catch(Exception e) {
-//            e.printStackTrace();
+//    static class Node {
+//        Beverage data;
+//        Node left, right;
+//        Node(Beverage data) {
+//            this.data = data;
+//            this.left = null;
+//            this.right = null;
 //        }
 //    }
-} //end class Client
 
+}
