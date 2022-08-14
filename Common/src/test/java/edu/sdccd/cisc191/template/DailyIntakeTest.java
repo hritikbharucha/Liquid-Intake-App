@@ -1,9 +1,11 @@
 package edu.sdccd.cisc191.template;
 import ch.qos.logback.core.net.server.Client;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ListView;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.*;
+import javafx.scene.control.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,9 +66,14 @@ class DailyIntakeTest {
 
         Collections.sort(beverages);
 
-        SearchNewEntry.Node bst = SearchNewEntry.arrayToBST(null, beverages, 0, beverages.size()-1);
+//        ListView<String> listView = new ListView<String>();
+        Node filteredBst = new Node(beverage3);
 
-        SearchNewEntry.Node filteredBst = SearchNewEntry.searchBST(bst,LocalDate.now());
+        try {
+            Beverage.searchBeverages(new ListView<>(), filteredBst);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         assertEquals(beverage3, filteredBst.data);
     }

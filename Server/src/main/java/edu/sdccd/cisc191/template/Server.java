@@ -2,16 +2,11 @@ package edu.sdccd.cisc191.template;
 
 import java.net.*;
 import java.io.*;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import javafx.stage.*;
-import javafx.scene.*;
-import javafx.scene.layout.*;
-import javafx.scene.control.*;
-import javafx.geometry.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * This program is a server that takes connection requests on
@@ -30,6 +25,7 @@ public class Server {
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
+    //start and open server socket
     public void start(int port) throws Exception {
         serverSocket = new ServerSocket(port);
         clientSocket = serverSocket.accept();
@@ -39,25 +35,25 @@ public class Server {
         ArrayList<Beverage> inputLine;
         LocalDate date;
         inputLine = (ArrayList<Beverage>)in.readObject();
-        System.out.println(inputLine + "THIS123");
         date = (LocalDate) in.readObject();
-        System.out.println(date + "THIS159");
 
         Node bst = arrayToBST(null, inputLine, 0, inputLine.size()-1);
         Node filteredBst = searchBST(bst, date);
         out.writeObject(filteredBst);
 
     }
-//
-public void stop() throws IOException {
-    in.close();
-    out.close();
-    clientSocket.close();
-    serverSocket.close();
-}
+
+    //stop client and server sockets
+    public void stop() throws IOException {
+        in.close();
+        out.close();
+        clientSocket.close();
+        serverSocket.close();
+    }
 
     Node root;
 
+    //recursively print all beverages in node
     public static void inOrder(Node root)
     {
         if (root != null) {
@@ -71,7 +67,6 @@ public void stop() throws IOException {
     public static Node searchBST(Node root, LocalDate needle)
     {
         if (root == null) {
-            System.out.println("Needle not found");
             return null;
         }
 
@@ -96,6 +91,7 @@ public void stop() throws IOException {
         return root;
     }
 
+    // use recursion to insert a beverage into given node
     public static Node insert(Node root, Beverage needle) {
 
         if (root == null) {
@@ -114,16 +110,14 @@ public void stop() throws IOException {
         return root;
     }
 
-
+    // launch server application
     public static void main(String[] args) {
         while (true) {
             Server server = new Server();
-
             try {
                 server.start(4444);
                 server.stop();
-//            SpringApplication.run(Server.class, args);
-//            server.stop();
+                SpringApplication.run(Server.class, args);
             } catch (Exception e) {
                 e.printStackTrace();
             }

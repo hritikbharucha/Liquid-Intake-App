@@ -10,6 +10,7 @@ public class Custom extends Beverage implements Calories {
         this.calories = calories;
     }
 
+    //added calories to beverage string
     @Override
     public String toString() {
         return super.toString() + " with " + calories + " calories.";

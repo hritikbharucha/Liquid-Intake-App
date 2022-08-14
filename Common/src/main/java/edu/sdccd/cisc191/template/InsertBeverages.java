@@ -23,6 +23,7 @@ public class InsertBeverages {
         SpringApplication.run(InsertBeverages.class);
     }
 
+    // save Beverages to the database using beverage repository
     @Bean
     public CommandLineRunner demo(BeverageRepository repository) {
         return (args) -> {

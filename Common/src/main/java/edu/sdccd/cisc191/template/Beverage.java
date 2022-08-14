@@ -63,10 +63,12 @@ public class Beverage implements Liquid,Comparable, Serializable {
 
     }
 
+    //return date for beverage
     public LocalDate getDate() {
         return date;
     }
 
+    //set date for beverage
     public void setDate(LocalDate date) {
         this.date = date;
     }
@@ -81,10 +83,12 @@ public class Beverage implements Liquid,Comparable, Serializable {
         this.amount = amount;
     }
 
+    //get type of beverage
     public String getType() {
         return type;
     }
 
+    // set type of beverage
     public void setType(String type) {
         this.type = type;
     }
@@ -121,29 +125,33 @@ public class Beverage implements Liquid,Comparable, Serializable {
         return amount;
     }
 
+    //to string to format beverage string
     @Override
     public String toString() {
         return (amount + " " + unit + " of " + type + " recorded on " + date);
     }
 
+    //convert oz to ml
     @Override
     public double ozToMl() {
         return getAmount() * 29.5735;
     }
 
+    //convert ml to oz
     @Override
     public double mlToOz() {
         return getAmount() * 0.033814;
     }
 
+    //compare Beverage objects by date
     @Override
     public int compareTo(Object o) {
         LocalDate compareDate = ((Beverage)o).getDate();
         return this.date.compareTo(compareDate);
     }
 
-
-    public void searchBeverages(ListView<String> list, Node filteredBst) throws Exception {
+    //search beverages and add to listview
+    public static void searchBeverages(ListView<String> list, Node filteredBst) throws Exception {
 
             String beverageString = filteredBst.data.toString();
             list.getItems().add(beverageString);

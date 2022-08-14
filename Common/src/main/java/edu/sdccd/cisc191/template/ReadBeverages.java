@@ -17,6 +17,7 @@ public class ReadBeverages {
         SpringApplication.run(ReadBeverages.class);
     }
 
+    //print all beverages saved in database
     @Bean
     public CommandLineRunner findAllVehicles(BeverageRepository beverageRepository) {
         return (args) -> {
