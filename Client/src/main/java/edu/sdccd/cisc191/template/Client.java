@@ -36,34 +36,19 @@ public class Client extends Application {
     ListView<String> listView;
     ArrayList<Beverage> beverages;
     int beverageNum;
+
+    //start connection between client and server
     public void startConnection(String ip, int port) throws IOException {
         clientSocket = new Socket(ip, port);
-        System.out.println("CONNECTION STARTED1");
         out = new ObjectOutputStream(clientSocket.getOutputStream());
-        System.out.println("CONNECTION STARTED2");
         in = new ObjectInputStream(clientSocket.getInputStream());
-        System.out.println("CONNECTION STARTED3");
-//        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
-
-
-
-
-//    public void stopConnection() throws IOException {
-//        in.close();
-//        System.out.println("CONNECTION STOPPED1");
-//        out.close();
-//        System.out.println("CONNECTION STOPPED2");
-//        clientSocket.close();
-//        System.out.println("CONNECTION STOPPED3");
-//    }
-
+    //request binary search tree to be made from an arraylist of beverages
     public Node bstRequest(ArrayList<Beverage> sortedBevs, LocalDate date) throws Exception {
         out.writeObject(sortedBevs);
         out.writeObject(date);
         return (Node)in.readObject();
-
     }
 
     //start stage and show window of the logs
@@ -111,7 +96,7 @@ public class Client extends Application {
         boolean error = true;
         saveFileButton.setOnAction(e -> {
             try {
-                runScannerStuff();
+                runScanner();
                 fileSuccess.show();
             } catch (IOException err) {
                 fileError.show();
@@ -153,8 +138,6 @@ public class Client extends Application {
             }
         });
 
-
-
         HBox buttonsLayout = new HBox(50);
         buttonsLayout.getChildren().addAll(searchButton, addButton);
         buttonsLayout.setPadding(new Insets(20, 0, 10, 0));
@@ -186,7 +169,6 @@ public class Client extends Application {
 
         Button addButton = new Button("Search");
         addButton.setOnAction(e -> {
-            System.out.println("Searching Entries");
             listView.getItems().clear();
 
             showFilteredBeverages(listView, beverages, datePicker.getValue());
@@ -194,7 +176,6 @@ public class Client extends Application {
 
         Button cancelButton = new Button("Done");
         cancelButton.setOnAction(e -> {
-            System.out.println("CANCELING");
             window.close();
         });
 
@@ -213,7 +194,8 @@ public class Client extends Application {
         window.showAndWait();
     }
 
-    public void runScannerStuff() throws IOException {
+    //scan entries and save them to a file
+    public void runScanner() throws IOException {
         new PrintWriter("DailyIntakeEntries.txt").close();
         String entries = "";
         for(int i = 0; i < beverages.size(); i++) {
@@ -296,7 +278,6 @@ public class Client extends Application {
 
         Button addButton = new Button("Add");
         addButton.setOnAction(e -> {
-            System.out.println("ADDING ENTRY");
             if (beverageDropdown.getValue() == "Water") {
                 int amount = Integer.valueOf(amountTextField.getText());
                 String units = unitsDropdown.getValue();
@@ -321,7 +302,6 @@ public class Client extends Application {
 
         Button cancelButton = new Button("Cancel");
         cancelButton.setOnAction(e -> {
-            System.out.println("CANCELING");
             beverage = null;
             window.close();
         });
@@ -343,12 +323,12 @@ public class Client extends Application {
         return beverage;
     }
 
+    //display beverages for searched date
     public void showFilteredBeverages(ListView<String> list, ArrayList<Beverage> sortedBevs, LocalDate date) {
         Beverage bev = new Beverage();
 
         try {
             startConnection("127.0.0.1", 4444);
-            System.out.println("STARTED ENDED");
             Node filteredBst = bstRequest(sortedBevs, date);
             bev.searchBeverages(list, filteredBst);
         } catch (Exception e) {
@@ -358,15 +338,12 @@ public class Client extends Application {
             info.show();
         }
 
-
-
     }
 
     //Convert all liquid amounts to one preferred unit to total all liquids consumed
     public static String setPreferredTotal(ArrayList<Beverage> drinks, String unit) {
         AtomicReference<Double> total = new AtomicReference<>((double) 0);
         ArrayList<Thread> threads = new ArrayList<Thread>();
-        System.out.println(unit);
         for (Beverage drink : drinks) {
             if (drink != null) {
                 threads.add(new Thread(() -> {
@@ -384,17 +361,14 @@ public class Client extends Application {
                 System.out.println(e);
             };});
 
-
         return String.valueOf(total.get()) + " " + unit;
     }
 
+    // launch client application
     public static void main(String[] args) {
 
         try {
-//            client.startConnection("127.0.0.1", 4444);
             Application.launch();
-
-//            client.stopConnection();
         } catch(Exception e) {
             e.printStackTrace();
         }
