@@ -1,5 +1,6 @@
 package edu.sdccd.cisc191.template;
 import ch.qos.logback.core.net.server.Client;
+import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ class DailyIntakeTest {
     @Test
     void testRecursionAndBST() {
         ArrayList<Beverage> beverages = new ArrayList<Beverage>();
-
+        assertEquals(5,5);
         Beverage beverage1 = new Beverage(10, "OZ", "Water", LocalDate.now().minusDays(2));
         Beverage beverage2 = new Beverage(10, "OZ", "Water", LocalDate.now().minusDays(1));
         Beverage beverage3 = new Beverage(10, "OZ", "Water", LocalDate.now());
@@ -65,8 +66,8 @@ class DailyIntakeTest {
         beverages.add(beverage3);
 
         Collections.sort(beverages);
-
-//        ListView<String> listView = new ListView<String>();
+        new JFXPanel();
+        ListView<String> listView = new ListView<>();
         Node filteredBst = new Node(beverage3);
 
         try {
