@@ -1,8 +1,11 @@
 package edu.sdccd.cisc191.template;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ListView;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import javax.persistence.*;
 
@@ -138,4 +141,14 @@ public class Beverage implements Liquid,Comparable, Serializable {
         LocalDate compareDate = ((Beverage)o).getDate();
         return this.date.compareTo(compareDate);
     }
+
+
+    public void searchBeverages(ListView<String> list, Node filteredBst) throws Exception {
+
+            String beverageString = filteredBst.data.toString();
+            list.getItems().add(beverageString);
+
+    }
+
+
 }

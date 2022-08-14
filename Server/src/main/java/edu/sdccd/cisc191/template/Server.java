@@ -46,12 +46,7 @@ public class Server {
         Node bst = arrayToBST(null, inputLine, 0, inputLine.size()-1);
         Node filteredBst = searchBST(bst, date);
         out.writeObject(filteredBst);
-//        while ((inputLine = in.readLine()) != null) {
-//            System.out.println(inputLine + "WEEE");
-//            String request = inputLine;
-//            String response = inputLine + "abc";
-//            out.println(response);
-//        }
+
     }
 //
 public void stop() throws IOException {
@@ -62,14 +57,6 @@ public void stop() throws IOException {
 }
 
     Node root;
-
-
-
-
-
-
-
-
 
     public static void inOrder(Node root)
     {
@@ -129,15 +116,18 @@ public void stop() throws IOException {
 
 
     public static void main(String[] args) {
-        Server server = new Server();
-        try {
-            server.start(4444);
-            SpringApplication.run(Server.class, args);
-//            server.stop();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        while (true) {
+            Server server = new Server();
 
+            try {
+                server.start(4444);
+                server.stop();
+//            SpringApplication.run(Server.class, args);
+//            server.stop();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 } //end class Server
 
